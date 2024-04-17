@@ -1,0 +1,980 @@
+﻿<!DOCTYPE html>
+<html lang="ua-UA">
+<merlin-component id="merlin-text-summarizer" class="merlin text-summarizer"></merlin-component>
+<merlin-component id="merlin-context-btn" class="merlin context-btn"></merlin-component>
+<merlin-component id="merlin-preview-link" class="merlin merlin-preview-link"></merlin-component>
+<merlin-component id="merlin-tutorial" class="merlin-tutorial"></merlin-component>
+<merlin-component id="merlin-chat" class="merlin chat"></merlin-component>
+
+<head>
+
+    <script async="" src="https://connect.facebook.net/en_US/fbevents.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style type="text/css">
+        html[dir=ltr], [data-sonner-toaster][dir=ltr] {
+            --toast-icon-margin-start: -3px;
+            --toast-icon-margin-end: 4px;
+            --toast-svg-margin-start: -1px;
+            --toast-svg-margin-end: 0px;
+            --toast-button-margin-start: auto;
+            --toast-button-margin-end: 0;
+            --toast-close-button-start: 0;
+            --toast-close-button-end: unset;
+            --toast-close-button-transform: translate(-35%, -35%)
+        }
+
+        html[dir=rtl], [data-sonner-toaster][dir=rtl] {
+            --toast-icon-margin-start: 4px;
+            --toast-icon-margin-end: -3px;
+            --toast-svg-margin-start: 0px;
+            --toast-svg-margin-end: -1px;
+            --toast-button-margin-start: 0;
+            --toast-button-margin-end: auto;
+            --toast-close-button-start: unset;
+            --toast-close-button-end: 0;
+            --toast-close-button-transform: translate(35%, -35%)
+        }
+
+        [data-sonner-toaster] {
+            position: fixed;
+            width: var(--width);
+            font-family: ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+            --gray1: hsl(0, 0%, 99%);
+            --gray2: hsl(0, 0%, 97.3%);
+            --gray3: hsl(0, 0%, 95.1%);
+            --gray4: hsl(0, 0%, 93%);
+            --gray5: hsl(0, 0%, 90.9%);
+            --gray6: hsl(0, 0%, 88.7%);
+            --gray7: hsl(0, 0%, 85.8%);
+            --gray8: hsl(0, 0%, 78%);
+            --gray9: hsl(0, 0%, 56.1%);
+            --gray10: hsl(0, 0%, 52.3%);
+            --gray11: hsl(0, 0%, 43.5%);
+            --gray12: hsl(0, 0%, 9%);
+            --border-radius: 8px;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            outline: none;
+            z-index: 999999999
+        }
+
+            [data-sonner-toaster][data-x-position=right] {
+                right: max(var(--offset),env(safe-area-inset-right))
+            }
+
+            [data-sonner-toaster][data-x-position=left] {
+                left: max(var(--offset),env(safe-area-inset-left))
+            }
+
+            [data-sonner-toaster][data-x-position=center] {
+                left: 50%;
+                transform: translate(-50%)
+            }
+
+            [data-sonner-toaster][data-y-position=top] {
+                top: max(var(--offset),env(safe-area-inset-top))
+            }
+
+            [data-sonner-toaster][data-y-position=bottom] {
+                bottom: max(var(--offset),env(safe-area-inset-bottom))
+            }
+
+        [data-sonner-toast] {
+            --y: translateY(100%);
+            --lift-amount: calc(var(--lift) * var(--gap));
+            z-index: var(--z-index);
+            position: absolute;
+            opacity: 0;
+            transform: var(--y);
+            touch-action: none;
+            will-change: transform,opacity,height;
+            transition: transform .4s,opacity .4s,height .4s,box-shadow .2s;
+            box-sizing: border-box;
+            outline: none;
+            overflow-wrap: anywhere
+        }
+
+            [data-sonner-toast][data-styled=true] {
+                padding: 16px;
+                background: var(--normal-bg);
+                border: 1px solid var(--normal-border);
+                color: var(--normal-text);
+                border-radius: var(--border-radius);
+                box-shadow: 0 4px 12px #0000001a;
+                width: var(--width);
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                gap: 6px
+            }
+
+            [data-sonner-toast]:focus-visible {
+                box-shadow: 0 4px 12px #0000001a,0 0 0 2px #0003
+            }
+
+            [data-sonner-toast][data-y-position=top] {
+                top: 0;
+                --y: translateY(-100%);
+                --lift: 1;
+                --lift-amount: calc(1 * var(--gap))
+            }
+
+            [data-sonner-toast][data-y-position=bottom] {
+                bottom: 0;
+                --y: translateY(100%);
+                --lift: -1;
+                --lift-amount: calc(var(--lift) * var(--gap))
+            }
+
+            [data-sonner-toast] [data-description] {
+                font-weight: 400;
+                line-height: 1.4;
+                color: inherit
+            }
+
+            [data-sonner-toast] [data-title] {
+                font-weight: 500;
+                line-height: 1.5;
+                color: inherit
+            }
+
+            [data-sonner-toast] [data-icon] {
+                display: flex;
+                height: 16px;
+                width: 16px;
+                position: relative;
+                justify-content: flex-start;
+                align-items: center;
+                flex-shrink: 0;
+                margin-left: var(--toast-icon-margin-start);
+                margin-right: var(--toast-icon-margin-end)
+            }
+
+            [data-sonner-toast][data-promise=true] [data-icon] > svg {
+                opacity: 0;
+                transform: scale(.8);
+                transform-origin: center;
+                animation: sonner-fade-in .3s ease forwards
+            }
+
+            [data-sonner-toast] [data-icon] > * {
+                flex-shrink: 0
+            }
+
+            [data-sonner-toast] [data-icon] svg {
+                margin-left: var(--toast-svg-margin-start);
+                margin-right: var(--toast-svg-margin-end)
+            }
+
+            [data-sonner-toast] [data-content] {
+                display: flex;
+                flex-direction: column;
+                gap: 2px
+            }
+
+            [data-sonner-toast] [data-button] {
+                border-radius: 4px;
+                padding-left: 8px;
+                padding-right: 8px;
+                height: 24px;
+                font-size: 12px;
+                color: var(--normal-bg);
+                background: var(--normal-text);
+                margin-left: var(--toast-button-margin-start);
+                margin-right: var(--toast-button-margin-end);
+                border: none;
+                cursor: pointer;
+                outline: none;
+                display: flex;
+                align-items: center;
+                flex-shrink: 0;
+                transition: opacity .4s,box-shadow .2s
+            }
+
+                [data-sonner-toast] [data-button]:focus-visible {
+                    box-shadow: 0 0 0 2px #0006
+                }
+
+                [data-sonner-toast] [data-button]:first-of-type {
+                    margin-left: var(--toast-button-margin-start);
+                    margin-right: var(--toast-button-margin-end)
+                }
+
+            [data-sonner-toast] [data-cancel] {
+                color: var(--normal-text);
+                background: rgba(0,0,0,.08)
+            }
+
+            [data-sonner-toast][data-theme=dark] [data-cancel] {
+                background: rgba(255,255,255,.3)
+            }
+
+            [data-sonner-toast] [data-close-button] {
+                position: absolute;
+                left: var(--toast-close-button-start);
+                right: var(--toast-close-button-end);
+                top: 0;
+                height: 20px;
+                width: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0;
+                background: var(--gray1);
+                color: var(--gray12);
+                border: 1px solid var(--gray4);
+                transform: var(--toast-close-button-transform);
+                border-radius: 50%;
+                opacity: 0;
+                cursor: pointer;
+                z-index: 1;
+                transition: opacity .1s,background .2s,border-color .2s
+            }
+
+                [data-sonner-toast] [data-close-button]:focus-visible {
+                    box-shadow: 0 4px 12px #0000001a,0 0 0 2px #0003
+                }
+
+            [data-sonner-toast] [data-disabled=true] {
+                cursor: not-allowed
+            }
+
+            [data-sonner-toast]:hover [data-close-button] {
+                opacity: 1
+            }
+
+            [data-sonner-toast]:focus [data-close-button] {
+                opacity: 1
+            }
+
+            [data-sonner-toast]:focus-within [data-close-button] {
+                opacity: 1
+            }
+
+            [data-sonner-toast]:hover [data-close-button]:hover {
+                background: var(--gray2);
+                border-color: var(--gray5)
+            }
+
+            [data-sonner-toast][data-swiping=true]:before {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                height: 100%
+            }
+
+            [data-sonner-toast][data-y-position=top][data-swiping=true]:before {
+                bottom: 50%;
+                transform: scaleY(3) translateY(50%)
+            }
+
+            [data-sonner-toast][data-y-position=bottom][data-swiping=true]:before {
+                top: 50%;
+                transform: scaleY(3) translateY(-50%)
+            }
+
+            [data-sonner-toast][data-swiping=false][data-removed=true]:before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                transform: scaleY(2)
+            }
+
+            [data-sonner-toast]:after {
+                content: "";
+                position: absolute;
+                left: 0;
+                height: calc(var(--gap) + 1px);
+                bottom: 100%;
+                width: 100%
+            }
+
+            [data-sonner-toast][data-mounted=true] {
+                --y: translateY(0);
+                opacity: 1
+            }
+
+            [data-sonner-toast][data-expanded=false][data-front=false] {
+                --scale: var(--toasts-before) * .05 + 1;
+                --y: translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));
+                height: var(--front-toast-height)
+            }
+
+            [data-sonner-toast] > * {
+                transition: opacity .4s
+            }
+
+            [data-sonner-toast][data-expanded=false][data-front=false][data-styled=true] > * {
+                opacity: 0
+            }
+
+            [data-sonner-toast][data-visible=false] {
+                opacity: 0;
+                pointer-events: none
+            }
+
+            [data-sonner-toast][data-mounted=true][data-expanded=true] {
+                --y: translateY(calc(var(--lift) * var(--offset)));
+                height: var(--initial-height)
+            }
+
+            [data-sonner-toast][data-removed=true][data-front=true][data-swipe-out=false] {
+                --y: translateY(calc(var(--lift) * -100%));
+                opacity: 0
+            }
+
+            [data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=true] {
+                --y: translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));
+                opacity: 0
+            }
+
+            [data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=false] {
+                --y: translateY(40%);
+                opacity: 0;
+                transition: transform .5s,opacity .2s
+            }
+
+            [data-sonner-toast][data-removed=true][data-front=false]:before {
+                height: calc(var(--initial-height) + 20%)
+            }
+
+            [data-sonner-toast][data-swiping=true] {
+                transform: var(--y) translateY(var(--swipe-amount, 0px));
+                transition: none
+            }
+
+            [data-sonner-toast][data-swipe-out=true][data-y-position=bottom], [data-sonner-toast][data-swipe-out=true][data-y-position=top] {
+                animation: swipe-out .2s ease-out forwards
+            }
+
+        @keyframes swipe-out {
+            0% {
+                transform: translateY(calc(var(--lift) * var(--offset) + var(--swipe-amount)));
+                opacity: 1
+            }
+
+            to {
+                transform: translateY(calc(var(--lift) * var(--offset) + var(--swipe-amount) + var(--lift) * -100%));
+                opacity: 0
+            }
+        }
+
+        @media (max-width: 600px) {
+            [data-sonner-toaster] {
+                position: fixed;
+                --mobile-offset: 16px;
+                right: var(--mobile-offset);
+                left: var(--mobile-offset);
+                width: 100%
+            }
+
+                [data-sonner-toaster] [data-sonner-toast] {
+                    left: 0;
+                    right: 0;
+                    width: calc(100% - 32px)
+                }
+
+                [data-sonner-toaster][data-x-position=left] {
+                    left: var(--mobile-offset)
+                }
+
+                [data-sonner-toaster][data-y-position=bottom] {
+                    bottom: 20px
+                }
+
+                [data-sonner-toaster][data-y-position=top] {
+                    top: 20px
+                }
+
+                [data-sonner-toaster][data-x-position=center] {
+                    left: var(--mobile-offset);
+                    right: var(--mobile-offset);
+                    transform: none
+                }
+        }
+
+        [data-sonner-toaster][data-theme=light] {
+            --normal-bg: #fff;
+            --normal-border: var(--gray4);
+            --normal-text: var(--gray12);
+            --success-bg: hsl(143, 85%, 96%);
+            --success-border: hsl(145, 92%, 91%);
+            --success-text: hsl(140, 100%, 27%);
+            --info-bg: hsl(208, 100%, 97%);
+            --info-border: hsl(221, 91%, 91%);
+            --info-text: hsl(210, 92%, 45%);
+            --warning-bg: hsl(49, 100%, 97%);
+            --warning-border: hsl(49, 91%, 91%);
+            --warning-text: hsl(31, 92%, 45%);
+            --error-bg: hsl(359, 100%, 97%);
+            --error-border: hsl(359, 100%, 94%);
+            --error-text: hsl(360, 100%, 45%)
+        }
+
+            [data-sonner-toaster][data-theme=light] [data-sonner-toast][data-invert=true] {
+                --normal-bg: #000;
+                --normal-border: hsl(0, 0%, 20%);
+                --normal-text: var(--gray1)
+            }
+
+        [data-sonner-toaster][data-theme=dark] [data-sonner-toast][data-invert=true] {
+            --normal-bg: #fff;
+            --normal-border: var(--gray3);
+            --normal-text: var(--gray12)
+        }
+
+        [data-sonner-toaster][data-theme=dark] {
+            --normal-bg: #000;
+            --normal-border: hsl(0, 0%, 20%);
+            --normal-text: var(--gray1);
+            --success-bg: hsl(150, 100%, 6%);
+            --success-border: hsl(147, 100%, 12%);
+            --success-text: hsl(150, 86%, 65%);
+            --info-bg: hsl(215, 100%, 6%);
+            --info-border: hsl(223, 100%, 12%);
+            --info-text: hsl(216, 87%, 65%);
+            --warning-bg: hsl(64, 100%, 6%);
+            --warning-border: hsl(60, 100%, 12%);
+            --warning-text: hsl(46, 87%, 65%);
+            --error-bg: hsl(358, 76%, 10%);
+            --error-border: hsl(357, 89%, 16%);
+            --error-text: hsl(358, 100%, 81%)
+        }
+
+        [data-rich-colors=true] [data-sonner-toast][data-type=success], [data-rich-colors=true] [data-sonner-toast][data-type=success] [data-close-button] {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+            color: var(--success-text)
+        }
+
+        [data-rich-colors=true] [data-sonner-toast][data-type=info], [data-rich-colors=true] [data-sonner-toast][data-type=info] [data-close-button] {
+            background: var(--info-bg);
+            border-color: var(--info-border);
+            color: var(--info-text)
+        }
+
+        [data-rich-colors=true] [data-sonner-toast][data-type=warning], [data-rich-colors=true] [data-sonner-toast][data-type=warning] [data-close-button] {
+            background: var(--warning-bg);
+            border-color: var(--warning-border);
+            color: var(--warning-text)
+        }
+
+        [data-rich-colors=true] [data-sonner-toast][data-type=error], [data-rich-colors=true] [data-sonner-toast][data-type=error] [data-close-button] {
+            background: var(--error-bg);
+            border-color: var(--error-border);
+            color: var(--error-text)
+        }
+
+        .sonner-loading-wrapper {
+            --size: 16px;
+            height: var(--size);
+            width: var(--size);
+            position: absolute;
+            inset: 0;
+            z-index: 10
+        }
+
+            .sonner-loading-wrapper[data-visible=false] {
+                transform-origin: center;
+                animation: sonner-fade-out .2s ease forwards
+            }
+
+        .sonner-spinner {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            height: var(--size);
+            width: var(--size)
+        }
+
+        .sonner-loading-bar {
+            animation: sonner-spin 1.2s linear infinite;
+            background: var(--gray11);
+            border-radius: 6px;
+            height: 8%;
+            left: -10%;
+            position: absolute;
+            top: -3.9%;
+            width: 24%
+        }
+
+            .sonner-loading-bar:nth-child(1) {
+                animation-delay: -1.2s;
+                transform: rotate(.0001deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(2) {
+                animation-delay: -1.1s;
+                transform: rotate(30deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(3) {
+                animation-delay: -1s;
+                transform: rotate(60deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(4) {
+                animation-delay: -.9s;
+                transform: rotate(90deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(5) {
+                animation-delay: -.8s;
+                transform: rotate(120deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(6) {
+                animation-delay: -.7s;
+                transform: rotate(150deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(7) {
+                animation-delay: -.6s;
+                transform: rotate(180deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(8) {
+                animation-delay: -.5s;
+                transform: rotate(210deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(9) {
+                animation-delay: -.4s;
+                transform: rotate(240deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(10) {
+                animation-delay: -.3s;
+                transform: rotate(270deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(11) {
+                animation-delay: -.2s;
+                transform: rotate(300deg) translate(146%)
+            }
+
+            .sonner-loading-bar:nth-child(12) {
+                animation-delay: -.1s;
+                transform: rotate(330deg) translate(146%)
+            }
+
+        @keyframes sonner-fade-in {
+            0% {
+                opacity: 0;
+                transform: scale(.8)
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        @keyframes sonner-fade-out {
+            0% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(.8)
+            }
+        }
+
+        @keyframes sonner-spin {
+            0% {
+                opacity: 1
+            }
+
+            to {
+                opacity: .15
+            }
+        }
+
+        @media (prefers-reduced-motion) {
+            [data-sonner-toast], [data-sonner-toast] > *, .sonner-loading-bar {
+                transition: none !important;
+                animation: none !important
+            }
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            transform-origin: center;
+            transition: opacity .2s,transform .2s
+        }
+
+            .loader[data-visible=false] {
+                opacity: 0;
+                transform: scale(.8) translate(-50%,-50%)
+            }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+
+    <title>ЕЛЕКТРИЧНИЙ ВОДЯНИЙ ПІСТОЛЕТ</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=480">
+    <meta name="description" content="ЕЛЕКТРИЧНИЙ ВОДЯНИЙ ПІСТОЛЕТ">
+    <link rel="shortcut icon" href="img/0rwi-iie.png" type="image/x-icon">
+    <link rel="stylesheet" href="assets_pages/land/css/reset.css">
+    <link rel="stylesheet" href="assets_pages/land/fonts/GothamPro/GothamPro.css">
+    <link rel="stylesheet" href="scripts/sliderOwlCarousel-2.2.1/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ЕЛЕКТРИЧНИЙ ВОДЯНИЙ ПІСТОЛЕТ">
+    <meta property="og:description" content="ЕЛЕКТРИЧНИЙ ВОДЯНИЙ ПІСТОЛЕТ">
+    <meta property="og:url" content="">
+
+
+    <!-- Meta Pixel Code!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+       
+        fbq('init', '340270249039104');
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=340270249039104&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Meta Pixel Code -->
+
+
+</head>
+<merlin-component id="merlin-uicomponentportal" class="merlin merlin-uicomponentportal"></merlin-component>
+<body>
+    <button id="stickyAddToCart" style="display: block;">Замовити зі знижкою</button>
+    <div class="main_wrapper" id="home">
+        <div class="header-top">
+            <div class="timer">
+                <p>До кінця акції лишилося:</p>
+                <div class="timer_container">
+                    <div class="timer_block">
+                        <div class="count">00</div>
+                        <div class="text">днів</div>
+                    </div>
+                    <div class="timer_block">
+                        <div class="count hours">00</div>
+                        <div class="text">годин</div>
+                    </div>
+                    <div class="timer_block">
+                        <div class="count minutes">53</div>
+                        <div class="text">хвилин</div>
+                    </div>
+                    <div class="timer_block">
+                        <div class="count seconds">26</div>
+                        <div class="text">секунд</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ul class="header-bottom tabs">
+            <li><a href="#home">Все про товар</a></li>
+            <li><a href="#description">Опис</a></li>
+            <li><a href="#characteristic">Характеристики</a></li>
+            <li><a href="#feedback">Відгуки</a></li>
+        </ul>
+
+        <header class="offer_section">
+            <h1 class="main_title">ЕЛЕКТРИЧНИЙ ВОДЯНИЙ ПІСТОЛЕТ</h1>
+            <div class="header_image">
+                <img src="img/111.jpg" alt="">
+                <!--<div class="sale"> <p>cкидкa <span>-53%</span></p></div>-->
+            </div>
+            <div class="reyt" id="order_form">
+                <div class="stars"><b>4.9</b></div>
+                Кількість замовлень: 1 974
+            </div>
+            <div class="price clearfix">
+                <div class="old">
+                    Звичайна ціна:
+                    <p><span>999</span><small>грн</small></p>
+                </div>
+                <div class="new">
+                    <div class="discount-banner">Ви заощаджуєте -40%</div>
+                    <p><span id="currentPrice">699</span><small>грн</small></p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 10px auto; display: block; font-size: 24px; line-height: 26px;"><strong>Залишіть заявку</strong><p>та зафіксуйте знижку!</p></div>
+
+
+
+
+            <form method="post" action="telegram.php" class="main-order-form m1-form">
+                <!-- Блок для вибора моделі -->
+                <div class="color-choices">
+                    <div style=" color: #104be6; font-size: 24px; margin-bottom:5px; "> <p>Оберіть модель іграшки!</p></div>
+                    <img src="img/first.jpg" alt="Синий колір" class="color-choice active" data-color="chose1" data-price="699" data-oldprice="999">
+                    <img src="img/second.jpg" alt="Зелений колір" class="color-choice" data-color="chose2" data-price="699" data-oldprice="999">
+                    <img src="img/third.jpg" alt="Чорний колір" class="color-choice active" data-color="chose3" data-price="749" data-oldprice="1199">
+                    <img src="img/fourth.jpg" alt="Білий колір" class="color-choice" data-color="chose4" data-price="749" data-oldprice="1199">
+                    <img src="img/fifths.jpg" alt="Коричневий колір" class="color-choice active" data-color="chose5" data-price="749" data-oldprice="1199">
+                    <img src="img/sixth.jpg" alt="Білий колір" class="color-choice" data-color="chose6" data-price="749" data-oldprice="1199">
+                </div>
+
+                <input type="text" name="name" placeholder="Ваше ім'я" required="">
+                <input type="tel" name="phone" placeholder="Ваш телефoн" required="">
+                
+
+                <input type="hidden" name="selectedColor" id="selectedColor" value="chose1">
+                <button type="submit" id="submitButton" class="button-m">Оформити замовлення</button>
+            </form>
+            <!--<a href="#order_form" class="button-m">Замовити зі знижкою</a> -->
+            <div class="products_count">Залишилося товару по акції: <span>23 шт.</span></div>
+
+        </header>
+        <!-- <div class="discounts-block" id="description">
+        <h2>ЗАОЩАДЖУЙТЕ ПРЯМО ЗАРАЗ!</h2>
+        <ul class="discounts-list">
+            <li><span>2 штуки:</span> <span>знижка 100грн</span></li>
+            <li><span>3 штуки:</span> <span>знижка 200грн</span></li>
+        </ul>
+    </div>
+        -->
+        <section class="sect2">
+            <h2 class="title"><span>Запали свої спогади! </span> </h2>
+
+            <img style="border-radius: 50px;
+    display: block;
+    margin: 0 auto 10px;
+    padding: 20px 20px 20px 20px;" src="img/1.webp" alt="">
+            <p><span>Нова зручність!</span><br>Електричний водяний пістолет перевершує водяні пістолети з механічним приводом завдяки своєму механізму з живленням від батареї, більшій дальності стрільби та розширеним можливостям гри завдяки магазинам.</p>
+            <img style="padding: 20px; border-radius: 50px;" src="img/1488.jpg" alt="">
+            <p><span>Весела розвага для літніх ігор</span><br>Електричний водяний пістолет працює завдяки моторчику та насосу, що створюють потік води під тиском. Він широко використовується як іграшка для водних боїв та розваг, особливо під час літніх ігор на відкритому повітрі. Цей пристрій додає більше веселощів та емоцій до звичайного відпочинку.</p>
+            <img style="padding: 20px; border-radius: 50px;" src="img/lonbkpto.jpg" alt="">
+            <!--<ul class="list1">
+            <li>Коробка</li>
+            <li>Інструкція</li>
+            <li>Точилка надувний для шиї</li>
+            <li>Груша для накачування повітрям</li>
+        </ul>-->
+            <a href="#order_form" class="button-m">Замовити зі знижкою</a>
+        </section>
+
+        <div class="product-card">
+            <h2 class="product-card-title">ПЕРЕВАГИ</h2>
+            <div class="product-feature">
+                <img src="img/product-future1.jpg" alt="Emulators" class="product-image">
+                <div class="feature-description">
+                    <h3>Висока якість!</h3>
+                    <p>
+                        Результат виготовлений із високоякісного матеріалу, що гарантує довговічність та надійність під час використання.
+                    </p>
+                </div>
+            </div>
+            <div class="product-feature">
+                <img src="img/product-future2.jpg" alt="Joystick" class="product-image">
+                <div class="feature-description">
+                    <h3>Легкий запуск!</h3>
+                    <p>Просто встановіть батарею, наповніть магазин водою, і готово до роботи! Цей водяний пістолет з легкістю віддасть вам можливість швидко зануритися у дію.</p>
+                </div>
+            </div>
+            <div class="product-feature">
+                <img src="img/product-future3.jpg" alt="Gift" class="product-image">
+                <div class="feature-description">
+                    <h3>Безперервні битви!</h3>
+                    <p>Пістолет має два магазини з водою, що забезпечує тривалий час гри без частого підвантаження. Тепер можна насолоджуватися водними битвами, не переймаючись про патрони.</p>
+                </div>
+            </div>
+        </div>
+        <div class="product-specs" id="characteristic">
+            <h3>ХАРАКТЕРИСТИКИ</h3>
+            <img src="img/r1.jpg" alt="Массажер" class="product-image">
+            <ul class="specs-list">
+                <li>Матеріал: ABS-пластик</li>
+                <li>Розмір: 20,5 х 16 x 3 см</li>
+                <li>Колір: білий, блакитний, зелений, чорний, коричневий</li>
+                <li>Ємність акумулятора: 800mah</li>
+                <li>Тип підключення: бездротове </li>
+            </ul>
+        </div>
+        
+
+
+
+        <div class="order-block">
+            <h2 class="order-title">Доставка і оплата</h2>
+            <div class="step">
+                <div class="step-icon">
+                    <img src="img/order-icon1.png" alt="Phone Icon">
+                </div>
+                <div class="step-info">
+                    <h3 class="step-title">Доставка:</h3>
+                    <p>Доставляємо замовлення поштою протягом 1-3 днів по всій Україні.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-icon">
+                    <img src="img/order-icon2.png" alt="Phone Icon">
+                </div>
+                <div class="step-info">
+                    <h3 class="step-title">Жодних передоплат:</h3>
+                    <p>Оплата замовлень здійснюється за фактом отримання товару</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-icon">
+                    <img src="img/order-icon3.png" alt="Payment Icon">
+                </div>
+                <div class="step-info">
+                    <h3 class="step-title">Гарантія:</h3>
+                    <p>Перед відправкою всі товари проходять ретельну перевірку щодо браку.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="offer_section">
+            <h1 class="main_title">ЕЛЕКТРИЧНИЙ ВОДЯНИЙ ПІСТОЛЕТ</h1>
+            <div class="header_image">
+                <img src="img/112.jpg" alt="">
+            </div>
+
+            <div class="reyt">
+                <div class="stars"><b>4.9</b></div>
+                Кількість замовлень: 1 984
+            </div>
+
+            <div class="price clearfix">
+                <div class="old">
+                    Звичайна ціна:
+                    <p><span>999</span><small>грн</small></p>
+                </div>
+                <div class="new">
+                    <div class="discount-banner">Ви заощаджуєте -40%</div>
+                    <p><span id="currentPrice">699</span><small>грн</small></p>
+                </div>
+            </div>
+
+            <a href="#order_form" class="button-m">Замовити зі знижкою</a>
+
+            <div class="products_count">Залишилося товару по акції:<span>23 шт.</span></div>
+        </section>
+
+
+
+
+
+        <footer class="footer_section">
+            <img src="img/footer.jpg" alt="">
+
+            <a href="https://oxyestore.com.ua/water_gl18/politics.html" target="_blank">Політика конфіденційності</a>
+
+
+            <a href="https://oxyestore.com.ua/water_gl18/vozvrat.html" target="_blank">Умови гарантії</a>
+
+        </footer><a href="vozvrat.html" target="_blank" style="cursor: pointer;color: initial;" previewlistener="true">
+        </a>
+    </div><a href="vozvrat.html" target="_blank" style="cursor: pointer;color: initial;" previewlistener="true">
+        <script type="text/javascript" src="assets_pages/js/lib.js"></script>
+        <link type="text/css" rel="stylesheet" href="assets_pages/fonts/roboto.css">
+        <script type="text/javascript" src="assets_pages/js/yasoblock-v2.js"></script>
+        <script type="text/javascript" src="assets_pages/js/plugins.js"></script>
+
+        <script type="text/javascript">
+            var phonePrefix = '+38';
+        </script>
+        <script type="text/javascript" src="assets_pages/js/phonePrefix.js"></script>
+
+
+        <script>
+            var comebackerFormId = '4';
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var colorChoices = document.querySelectorAll('.color-choice');
+                var priceDisplay = document.getElementById('currentPrice');
+                var oldPriceDisplay = document.querySelector('.old span');
+                var quantitySelect = document.querySelector('select[name="comment"]');
+                var selectedColorInput = document.getElementById('selectedColor');
+
+                function clearSelectOptions(select) {
+                    while (select.options.length > 0) {
+                        select.remove(0);
+                    }
+                }
+
+                function addOptionToSelect(select, text, value, isDisabled = false) {
+                    var option = document.createElement('option');
+                    option.text = text;
+                    option.value = value;
+                    if (isDisabled) {
+                        option.disabled = true;
+                        option.selected = true;
+                    }
+                    select.add(option);
+                }
+
+               
+
+                colorChoices.forEach(function (choice) {
+                    choice.addEventListener('click', function () {
+                        colorChoices.forEach(function (c) { c.classList.remove('active'); });
+                        this.classList.add('active');
+                        var newPrice = this.getAttribute('data-price');
+                        var oldPrice = this.getAttribute('data-oldprice');
+                        priceDisplay.textContent = newPrice;
+                        oldPriceDisplay.textContent = oldPrice;
+                        selectedColorInput.value = this.getAttribute('data-color');
+                        updateQuantityOptions(this.getAttribute('data-color'));
+                    });
+                });
+
+                // Установка першого кольору по умолчанию
+                document.querySelector('.color-choice[data-color="chose1"]').click();
+            });
+        </script>
+
+
+        <script>
+            document.addEventListener("scroll", function () {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var scrollHeight = document.documentElement.scrollHeight;
+                var clientHeight = document.documentElement.clientHeight;
+                var scrolledThrough = (scrollTop + clientHeight) / scrollHeight;
+
+                if (scrolledThrough > 0.2) { // Updated from 0.5 to 0.2
+                    document.getElementById("stickyAddToCart").style.display = "block";
+                } else {
+                    document.getElementById("stickyAddToCart").style.display = "none";
+                }
+            });
+
+            document.getElementById("stickyAddToCart").addEventListener("click", function () {
+                document.querySelector("#order_form").scrollIntoView({
+                    behavior: "smooth"
+                });
+            });
+        </script>
+
+
+        <link rel="stylesheet" href="assets_pages/css/enhancer_all_style.css?v=3">
+        <script src="assets_pages/land/js/youtube/previewYouTube.js"></script>
+        <script src="scripts/scripts.js"></script>
+        <script src="scripts/sliderOwlCarousel-2.2.1/owl.carousel.min.js"></script>
+
+    </a><div id="torrent-scanner-popup" style="display: none;"></div>
+</body>
+</html>
